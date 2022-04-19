@@ -1,7 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:rest_api_implementation/classes/GalleryPage.dart';
+import 'dart:io';
 
-void main() {
+import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:rest_api_implementation/screens/GalleryPage.dart';
+
+import 'model_class/Data.dart';
+
+Future<void> main() async {
+  await Hive.initFlutter();
+  await Hive.openBox('shutterBox');
   runApp(const MyApp());
 }
 
@@ -14,6 +21,8 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: ImagePreview(),
+
+
     );
   }
 }

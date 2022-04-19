@@ -425,7 +425,8 @@ class Preview {
   Preview({
       int? height, 
       String? url, 
-      int? width,}){
+      int? width,})
+  {
     _height = height;
     _url = url;
     _width = width;
