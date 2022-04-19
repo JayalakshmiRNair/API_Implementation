@@ -36,7 +36,6 @@ class OfflineGalleryScreenState extends State<OfflineGalleryScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
-    _box.close();
     super.dispose();
   }
 
@@ -55,7 +54,7 @@ class OfflineGalleryScreenState extends State<OfflineGalleryScreen> {
     return AppBar(
       centerTitle: true,
       title: const Text(
-        "The Art Gallery",
+        "Offline Art Gallery",
         style: TextStyle(
             color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
       ),
@@ -63,11 +62,6 @@ class OfflineGalleryScreenState extends State<OfflineGalleryScreen> {
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    } else if (_item.isEmpty) {
-      return const Center(child: Text('List is empty :('));
-    } else {
       return ListView.builder(
           controller: _scrollController,
           itemCount: _item.length,
@@ -92,7 +86,7 @@ class OfflineGalleryScreenState extends State<OfflineGalleryScreen> {
               ),
             );
           });
-    }
+
   }
 
   //endregion
@@ -100,8 +94,8 @@ class OfflineGalleryScreenState extends State<OfflineGalleryScreen> {
   //region : Private Methods
 
   void _initialiseScreenVariables() {
-    _isLoading = true;
-    _pageNumber = 1;
+    _isLoading = false;
+    _pageNumber = 10;
     _scrollController.addListener(_initPagination);
     _box = Hive.box('shutterBox');
     _getDataFromHive();
@@ -116,6 +110,7 @@ class OfflineGalleryScreenState extends State<OfflineGalleryScreen> {
       List<dynamic> newUserData = userData['data'];
 
       if (newUserData.isNotEmpty) {
+        _item.clear();
         _item.addAll(newUserData);
       }
       setState(() {
@@ -132,7 +127,7 @@ class OfflineGalleryScreenState extends State<OfflineGalleryScreen> {
   void _initPagination() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent) {
-      _pageNumber++;
+      _pageNumber+= 5;
       _getDataFromHive();
     }
   }

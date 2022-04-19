@@ -70,9 +70,9 @@ class ImagePreviewState extends State<ImagePreview> {
   }
 
   Widget _buildBody() {
-   if (_item.isEmpty) {
+   /*if (_item.isEmpty) {
       return const Center(child: Text('List is empty :('));
-    } else {
+    } else {*/
       return ListView.builder(
           controller: _scrollController,
           itemCount: _item.length+1,
@@ -102,7 +102,7 @@ class ImagePreviewState extends State<ImagePreview> {
             const Center(child: CircularProgressIndicator())
             );
           });
-     }
+     //}
   }
 
   //endregion
@@ -136,7 +136,7 @@ class ImagePreviewState extends State<ImagePreview> {
       if (newUserData.isNotEmpty){
         _item.clear();
         _item.addAll(newUserData);
-        //_box.put(_pageNumber, userData);
+        _box.put(_pageNumber, userData);
       }
       setState(() {
         _isLoading = false;
@@ -164,10 +164,6 @@ class ImagePreviewState extends State<ImagePreview> {
     } catch (e) {
       return e.toString();
     }
-  }
-
-  String _getImageFromBox() {
-    return (_box.get("url"));
   }
 
   Future addDataToHive(List<Data> data) async {
