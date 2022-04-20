@@ -2,29 +2,27 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:rest_api_implementation/constant/AppUrls.dart';
 import 'package:http/http.dart' as http;
-import 'package:rest_api_implementation/model_class/DataForHive.dart';
 import 'package:rest_api_implementation/screens/offline_gallery_screen.dart';
 import '../model_class/Data.dart';
 
 late Box _box;
 
-class ImagePreview extends StatefulWidget {
-  const ImagePreview({Key? key}) : super(key: key);
+class GalleryPage extends StatefulWidget {
+  const GalleryPage({Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
-    return ImagePreviewState();
+    return GalleryPageState();
   }
 }
 
-class ImagePreviewState extends State<ImagePreview> {
+class GalleryPageState extends State<GalleryPage> {
   late bool _isLoading;
   late int _pageNumber;
-  late Data user;
+   Data? user;
   late final List<dynamic> _item = <dynamic>[];
   final ScrollController _scrollController = ScrollController();
 
@@ -47,7 +45,7 @@ class ImagePreviewState extends State<ImagePreview> {
     return Scaffold(
       appBar: _buildAppBar(),
       body: _buildBody(),
-      backgroundColor: Color(0xFFF9F8FD) ,
+      backgroundColor:  Color(0xF5F5F5F5),
       floatingActionButton: FloatingActionButton.small(
           tooltip: 'Click to open offline screen',
           child: const Icon(Icons.cloud_off_outlined),
@@ -62,12 +60,11 @@ class ImagePreviewState extends State<ImagePreview> {
   //region: Widgets
   PreferredSize _buildAppBar() {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(120), // Set this height
+      preferredSize: const Size.fromHeight(100), // Set this height
       child: Container(
-        padding: EdgeInsets.only(left: 30.0),
+        padding: const EdgeInsets.only(left: 30.0,top: 20),
         decoration: const BoxDecoration(
             color: Color(0xFF0C9869),
-            borderRadius: BorderRadius.only(bottomLeft: Radius.circular(30.0), bottomRight: Radius.circular(30.0)),
             boxShadow: [
               BoxShadow(
                   color: Color(0xFF000000),
@@ -108,7 +105,10 @@ class ImagePreviewState extends State<ImagePreview> {
   }
 
   Widget _buildBody() {
-    return
+    if (_item.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    } else {
+      return
         ListView.builder(
             controller: _scrollController,
             itemCount: _item.length + 1,
@@ -117,11 +117,11 @@ class ImagePreviewState extends State<ImagePreview> {
                 user = Data.fromJson(_item.elementAt(index));
               }
               return Container(
-                padding: const EdgeInsets.only(left: 10.0,right: 10.0),
+                  padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 10.0),
                   height: 300,
                   decoration: BoxDecoration(
-                      color: Color(0xF5F5F5F5),
-                      borderRadius: BorderRadius.circular(10),
+                      color: Color(0xFFF9F8FD),
+                      borderRadius: BorderRadius.circular(20),
                       boxShadow: const [
                         BoxShadow(
                             color: Color(0xFF000000),
@@ -129,7 +129,8 @@ class ImagePreviewState extends State<ImagePreview> {
                             blurRadius: 0.0,
                             spreadRadius: 0.0),
                       ]),
-                  margin: const EdgeInsets.only(left: 20.0, right: 20.0, top: 10.0),
+                  margin: const EdgeInsets.only(
+                      left: 20.0, right: 20.0, top: 10.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,18 +160,22 @@ class ImagePreviewState extends State<ImagePreview> {
                       ),
                       index < _item.length
                           ? Container(
-                            width: MediaQuery.of(context).size.width,
-                            height: 200,
-                            child: Image(
-                                image: NetworkImage(_getImage(user)),
-                                fit: BoxFit.fill,
-                              ),
-                          )
+                        width: MediaQuery
+                            .of(context)
+                            .size
+                            .width,
+                        height: 200,
+                        child: Image(
+                          image: NetworkImage(_getImage(user)),
+                          fit: BoxFit.fill,
+                        ),
+                      )
                           : const Center(child: CircularProgressIndicator()),
                     ],
                   ));
             }
-    );
+        );
+    }
     //}
   }
 
@@ -186,6 +191,7 @@ class ImagePreviewState extends State<ImagePreview> {
   }
 
   Future<void> _getDataFromApi() async {
+    print("fetching api ");
     setState(() {
       _isLoading = true;
     });
@@ -200,8 +206,7 @@ class ImagePreviewState extends State<ImagePreview> {
     if (response.statusCode == 200) {
       dynamic userData = json.decode(response.body);
       List<dynamic> newUserData = userData['data'];
-      //addDataToHive(newUserData);
-
+      print(userData.toString());
       if (newUserData.isNotEmpty) {
         _item.clear();
         _item.addAll(newUserData);
@@ -211,6 +216,8 @@ class ImagePreviewState extends State<ImagePreview> {
         _isLoading = false;
       });
     } else {
+      print("response is null");
+
       setState(() {
         _isLoading = false;
       });
