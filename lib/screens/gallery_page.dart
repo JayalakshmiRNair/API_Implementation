@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:rest_api_implementation/constant/AppUrls.dart';
 import 'package:http/http.dart' as http;
+import 'package:rest_api_implementation/model_class/DataForHive.dart';
+import 'package:rest_api_implementation/model_class/ShutterstockModel.dart';
 import 'package:rest_api_implementation/screens/offline_gallery_screen.dart';
-import '../model_class/Data.dart';
 
-late Box _box;
 
 class GalleryPage extends StatefulWidget {
   const GalleryPage({Key? key}) : super(key: key);
@@ -22,14 +22,18 @@ class GalleryPage extends StatefulWidget {
 class GalleryPageState extends State<GalleryPage> {
   late bool _isLoading;
   late int _pageNumber;
-   Data? user;
+  //ShutterstockModel? user;
+  Data? user;
+  DataForHive? dataForHiveUser;
   late final List<dynamic> _item = <dynamic>[];
+  late Box _box;
   final ScrollController _scrollController = ScrollController();
 
   //region : Overridden Methods
   @override
   void initState() {
     super.initState();
+   // _box = Hive.box<DataForHive>('shutterBox');
     _box = Hive.box('shutterBox');
     _initialiseScreenVariables();
   }
@@ -37,6 +41,7 @@ class GalleryPageState extends State<GalleryPage> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _box?.close();
     super.dispose();
   }
 
@@ -45,7 +50,7 @@ class GalleryPageState extends State<GalleryPage> {
     return Scaffold(
       appBar: _buildAppBar(),
       body: _buildBody(),
-      backgroundColor:  Color(0xF5F5F5F5),
+      backgroundColor:  const Color(0xF5F5F5F5),
       floatingActionButton: FloatingActionButton.small(
           tooltip: 'Click to open offline screen',
           child: const Icon(Icons.cloud_off_outlined),
@@ -114,7 +119,7 @@ class GalleryPageState extends State<GalleryPage> {
             itemCount: _item.length + 1,
             itemBuilder: (BuildContext context, int index) {
               if (index < _item.length) {
-                user = Data.fromJson(_item.elementAt(index));
+                  user = Data.fromJson(_item.elementAt(index));
               }
               return Container(
                   padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 10.0),
@@ -206,11 +211,16 @@ class GalleryPageState extends State<GalleryPage> {
     if (response.statusCode == 200) {
       dynamic userData = json.decode(response.body);
       List<dynamic> newUserData = userData['data'];
-      print(userData.toString());
+      //var data = ShutterstockModel.fromJson(userData);
       if (newUserData.isNotEmpty) {
         _item.clear();
         _item.addAll(newUserData);
-        _box.put(_pageNumber, userData);
+        print(_item.toString());
+       _box.put(_pageNumber, newUserData);
+       // addDataToHive;
+        if (kDebugMode) {
+          print(_box.values);
+        }
       }
       setState(() {
         _isLoading = false;
@@ -257,16 +267,18 @@ class GalleryPageState extends State<GalleryPage> {
   }
 
   Future addDataToHive(List<Data> data) async {
-    for (var d in data) {
-      Map<String, dynamic> newdata = {"url": d.assets!.preview!.url};
+    /*for (var d in data) {
+      // Map<dynamic, dynamic> newdata = {"url": d.assets.preview.url, "width": d.width, "height" : d.height};
+      var model = DataForHive(url : d.assets!.preview!.url!, width : d.assets!.preview!.width, height : d.assets!.preview!.height)
       _box.add(newdata);
-    }
+    }*/
   }
 
   void _openOfflineGalleryScreen() {
     Navigator.of(context).push(
         MaterialPageRoute(builder: (context) => const OfflineGalleryScreen()));
   }
+
 //endregion
 
 }

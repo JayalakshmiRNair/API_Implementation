@@ -3,12 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:rest_api_implementation/constant/AppUrls.dart';
-import 'package:http/http.dart' as http;
-import 'package:rest_api_implementation/model_class/DataForHive.dart';
-import '../model_class/Data.dart';
-
-late Box _box;
+import 'package:rest_api_implementation/model_class/ShutterstockModel.dart';
 
 class OfflineGalleryScreen extends StatefulWidget {
   const OfflineGalleryScreen({Key? key}) : super(key: key);
@@ -25,6 +20,7 @@ class OfflineGalleryScreenState extends State<OfflineGalleryScreen> {
   late Data user;
   late final List<dynamic> _item = <dynamic>[];
   final ScrollController _scrollController = ScrollController();
+  late Box _box;
 
   //region : Overridden Methods
   @override
@@ -35,7 +31,7 @@ class OfflineGalleryScreenState extends State<OfflineGalleryScreen> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _scrollController?.dispose();
     super.dispose();
   }
 
@@ -63,31 +59,30 @@ class OfflineGalleryScreenState extends State<OfflineGalleryScreen> {
   }
 
   Widget _buildBody() {
-      return ListView.builder(
-          controller: _scrollController,
-          itemCount: _item.length,
-          itemBuilder: (BuildContext context, int index) {
-            user = Data.fromJson(_item.elementAt(index));
-            return Container(
-              height: 200,
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: const [
-                    BoxShadow(
-                        color: Color(0xFF000000),
-                        offset: Offset.zero,
-                        blurRadius: 0.0,
-                        spreadRadius: 0.0),
-                  ]),
-              margin: const EdgeInsets.all(10.0),
-              child: Image(
-                image: NetworkImage(_getImageUrl(user)),
-                fit: BoxFit.fill,
-              ),
-            );
-          });
-
+    return ListView.builder(
+        controller: _scrollController,
+        itemCount: _item.length,
+        itemBuilder: (BuildContext context, int index) {
+          user = Data.fromJson(_item.elementAt(index));
+          return Container(
+            height: 200,
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: const [
+                  BoxShadow(
+                      color: Color(0xFF000000),
+                      offset: Offset.zero,
+                      blurRadius: 0.0,
+                      spreadRadius: 0.0),
+                ]),
+            margin: const EdgeInsets.all(10.0),
+            child: Image(
+              image: NetworkImage(_getImageUrl(user)),
+              fit: BoxFit.fill,
+            ),
+          );
+        });
   }
 
   //endregion
@@ -99,17 +94,18 @@ class OfflineGalleryScreenState extends State<OfflineGalleryScreen> {
     _pageNumber = 10;
     _scrollController.addListener(_initPagination);
     _box = Hive.box('shutterBox');
+    //_box = Hive.box<DataForHive>('shutterBox');
     _getDataFromHive();
   }
 
   Future<void> _getDataFromHive() async {
+    print("getDataFromHive");
     setState(() {
       _isLoading = true;
     });
     try {
       dynamic userData = _box.get(_pageNumber);
-      List<dynamic> newUserData = userData['data'];
-
+      List<dynamic> newUserData = userData;
       if (newUserData.isNotEmpty) {
         _item.clear();
         _item.addAll(newUserData);
@@ -128,7 +124,7 @@ class OfflineGalleryScreenState extends State<OfflineGalleryScreen> {
   void _initPagination() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent) {
-      _pageNumber+= 5;
+      _pageNumber += 5;
       _getDataFromHive();
     }
   }
@@ -140,6 +136,8 @@ class OfflineGalleryScreenState extends State<OfflineGalleryScreen> {
       return e.toString();
     }
   }
+
+
 
 //endregion
 

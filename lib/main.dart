@@ -2,13 +2,15 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:rest_api_implementation/model_class/DataForHive.dart';
 import 'package:rest_api_implementation/screens/gallery_page.dart';
 
-import 'model_class/Data.dart';
 
 Future<void> main() async {
   await Hive.initFlutter();
+  Hive.registerAdapter(DataForHiveAdapter());
   await Hive.openBox('shutterBox');
+ // await Hive.openBox<DataForHive>('shutterBox');
   runApp(const MyApp());
 }
 
