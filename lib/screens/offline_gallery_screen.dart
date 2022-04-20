@@ -52,6 +52,7 @@ class OfflineGalleryScreenState extends State<OfflineGalleryScreen> {
   //region: Widgets
   AppBar _buildAppBar() {
     return AppBar(
+      backgroundColor: Color(0xFF0C9869),
       centerTitle: true,
       title: const Text(
         "Offline Art Gallery",

@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:rest_api_implementation/screens/GalleryPage.dart';
+import 'package:rest_api_implementation/screens/gallery_page.dart';
 
 import 'model_class/Data.dart';
 
